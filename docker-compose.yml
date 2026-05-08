@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  express:
+    build: ./dockerTestExpress
+    container_name: express_app
+    ports:
+      - "5000:5000"
+    command: "npm start"
+    volumes:
+      - "./dockerTestExpress:/app"
+      - "/app/node_modules"
+    environment:
+      MONGO_URI: "mongodb://${MONGO_USER}:${MONGO_PASS}@db:27017/mydb?authSource=admin"
+
+  react:
+    build: ./dockerTestReact
+    container_name: react_app
+    ports:
+      - "3000:5173"
+    command: "npm run dev -- --host 0.0.0.0"
+    volumes:
+      - "./dockerTestReact:/app"
+      - "/app/node_modules"
+
+  db:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASS}
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  mongo_data:
